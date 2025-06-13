@@ -1,4 +1,6 @@
 import React, { useState } from "react";
+import { buildLaplacian } from "../utils/laplacian";
+import LaplacianViewer from "./LaplacianViewer";
 
 export default function GraphBuilder() {
   const [numMasses, setNumMasses] = useState("");
@@ -80,7 +82,9 @@ export default function GraphBuilder() {
   }
 
   return (
-    <div>
+    <div
+      style={{ display: "flex", flexDirection: "column", alignItems: "center" }}
+    >
       {!hasSubmitted && (
         <form onSubmit={handleSubmit}>
           <label>
@@ -101,7 +105,70 @@ export default function GraphBuilder() {
 
       {hasSubmitted && (
         <>
-          <h3>Drag masses and set mass values</h3>
+          <svg
+            width={canvasWidth}
+            height={canvasHeight}
+            style={{ border: "1px solid gray", marginBottom: "1rem" }}
+            onMouseMove={handleMouseMove}
+            onMouseUp={handleMouseUp}
+          >
+            {/* Render springs */}
+            {springs.map((s, i) => {
+              const m1 = masses.find((m) => m.id === s.id1);
+              const m2 = masses.find((m) => m.id === s.id2);
+              if (!m1 || !m2) return null;
+
+              return (
+                <g key={i}>
+                  <line
+                    x1={m1.x}
+                    y1={m1.y}
+                    x2={m2.x}
+                    y2={m2.y}
+                    stroke="green"
+                    strokeWidth="2"
+                  />
+                  <text
+                    x={(m1.x + m2.x) / 2}
+                    y={(m1.y + m2.y) / 2 - 5}
+                    fontSize="12px"
+                    fill="darkgreen"
+                  >
+                    k = {s.k}
+                  </text>
+                </g>
+              );
+            })}
+
+            {/* Render masses */}
+            {masses.map((m) => (
+              <React.Fragment key={m.id}>
+                <circle
+                  cx={m.x}
+                  cy={m.y}
+                  r={Math.sqrt(m.mass) * 6}
+                  fill="steelblue"
+                  onMouseDown={() => handleMouseDown(m.id)}
+                  style={{ cursor: "pointer" }}
+                />
+                <text x={m.x + 12} y={m.y + 4} fontSize="12px">
+                  m = {m.mass}
+                </text>
+                <foreignObject x={m.x - 20} y={m.y + 15} width="40" height="30">
+                  <input
+                    type="number"
+                    value={m.mass}
+                    onChange={(e) => handleMassChange(m.id, e.target.value)}
+                    style={{ width: "35px", fontSize: "12px" }}
+                    min="0.1"
+                    step="0.1"
+                  />
+                </foreignObject>
+              </React.Fragment>
+            ))}
+          </svg>
+
+          {/* Controls under canvas */}
           <div style={{ marginBottom: "1rem" }}>
             <label>
               Width:
@@ -128,70 +195,28 @@ export default function GraphBuilder() {
             </label>
           </div>
 
-          <button onClick={() => setSpringPlacementMode(!springPlacementMode)}>
-            {springPlacementMode
-              ? "Exit Spring Placement Mode"
-              : "Enter Spring Placement Mode"}
-          </button>
+          <div>
+            <button
+              onClick={() => setSpringPlacementMode(!springPlacementMode)}
+            >
+              {springPlacementMode
+                ? "Exit Spring Placement Mode"
+                : "Enter Spring Placement Mode"}
+            </button>
 
-          <svg
-            width={canvasWidth}
-            height={canvasHeight}
-            style={{ border: "1px solid gray" }}
-            onMouseMove={handleMouseMove}
-            onMouseUp={handleMouseUp}
-          >
-            {springs.map((s, i) => {
-              const m1 = masses.find((m) => m.id === s.id1);
-              const m2 = masses.find((m) => m.id === s.id2);
-              if (!m1 || !m2) return null;
-
-              return (
-                <g key={i}>
-                  <line
-                    x1={m1.x}
-                    y1={m1.y}
-                    x2={m2.x}
-                    y2={m2.y}
-                    stroke="green"
-                    strokeWidth="2"
-                  />
-                  <text
-                    x={(m1.x + m2.x) / 2 + 2}
-                    y={(m1.y + m2.y) / 2 - 5}
-                    fontSize="12px"
-                    fill="darkgreen"
-                  >
-                    k={s.k}
-                  </text>
-                </g>
-              );
-            })}
-
-            {masses.map((m) => (
-              <React.Fragment key={m.id}>
-                <circle
-                  cx={m.x}
-                  cy={m.y}
-                  r={Math.sqrt(m.mass) * 6} // radius scales with sqrt(mass)
-                  fill="steelblue"
-                  onMouseDown={() => handleMouseDown(m.id)}
-                  style={{ cursor: "pointer" }}
-                />
-                <text x={m.x + 12} y={m.y + 4} fontSize="12px">
-                  m = {m.mass}
-                </text>
-                <foreignObject x={m.x - 20} y={m.y + 15} width="40" height="30">
-                  <input
-                    type="number"
-                    value={m.mass}
-                    onChange={(e) => handleMassChange(m.id, e.target.value)}
-                    style={{ width: "35px", fontSize: "12px" }}
-                  />
-                </foreignObject>
-              </React.Fragment>
-            ))}
-          </svg>
+            <button
+              onClick={() =>
+                setSprings((prev) => prev.slice(0, prev.length - 1))
+              }
+              disabled={springs.length === 0}
+              style={{ marginLeft: "1rem" }}
+            >
+              Undo Last Spring
+            </button>
+          </div>
+          {springs.length > 0 && (
+            <LaplacianViewer matrix={buildLaplacian(masses, springs)} />
+          )}
         </>
       )}
     </div>
