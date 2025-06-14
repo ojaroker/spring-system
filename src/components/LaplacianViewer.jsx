@@ -1,6 +1,6 @@
 import React from "react";
 import { BlockMath } from "react-katex";
-import { matrixToLatex } from '../utils/laplacian';
+import { matrixToLatex } from "../utils/laplacian";
 import "katex/dist/katex.min.css";
 
 function LaplacianViewer({ matrix }) {
@@ -22,10 +22,9 @@ function LaplacianViewer({ matrix }) {
         />
       </div>
 
-      <div style={{ marginTop: '1rem' }}>
-  <BlockMath math={matrixToLatex(matrix)} />
-</div>
-
+      <div style={{ marginTop: "1rem" }}>
+        <BlockMath math={matrixToLatex(matrix)} />
+      </div>
     </div>
   );
 }

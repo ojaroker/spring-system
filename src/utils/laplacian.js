@@ -19,8 +19,6 @@ export function buildLaplacian(masses, springs) {
 }
 
 export function matrixToLatex(matrix) {
-  const rows = matrix.map(
-    row => row.map(x => x.toFixed(2)).join(" & ")
-  );
+  const rows = matrix.map((row) => row.map((x) => x.toFixed(2)).join(" & "));
   return `\\begin{bmatrix}\n${rows.join(" \\\\\n")}\n\\end{bmatrix}`;
 }
