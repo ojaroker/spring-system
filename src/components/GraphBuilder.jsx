@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { buildLaplacian } from "../utils/laplacian";
 import LaplacianViewer from "./LaplacianViewer";
+import EigenmodeViewer from "./EigenmodeViewer";
 
 export default function GraphBuilder() {
   const [numMasses, setNumMasses] = useState("");
@@ -88,12 +89,13 @@ export default function GraphBuilder() {
       {!hasSubmitted && (
         <form onSubmit={handleSubmit}>
           <label>
-            How many masses?
+            How many masses? (Enter value between 2 and 20)
             <input
               type="number"
               value={numMasses}
               onChange={(e) => setNumMasses(e.target.value)}
-              min="1"
+              min="2"
+              max="20"
               style={{ marginLeft: "0.5rem" }}
             />
           </label>
@@ -215,7 +217,10 @@ export default function GraphBuilder() {
             </button>
           </div>
           {springs.length > 0 && (
-            <LaplacianViewer matrix={buildLaplacian(masses, springs)} />
+            <div>
+              <LaplacianViewer matrix={buildLaplacian(masses, springs)} />
+              <EigenmodeViewer matrix={buildLaplacian(masses, springs)} />
+            </div>
           )}
         </>
       )}
