@@ -1,3 +1,14 @@
-export default function SimulationCanvas() {
-  return <div style={{ margin: "1rem 0" }}>🎢 SimulationCanvas Component</div>;
+import React from "react";
+import MassTable from "./MassTable";
+
+export default function SimulationCanvas({ masses, eigenData }) {
+  return (
+    <div style={{ marginTop: "2rem" }}>
+      {eigenData ? (
+        <MassTable masses={masses} eigenData={eigenData} />
+      ) : (
+        <div>Please compute eigenvalues first to see the mass table.</div>
+      )}
+    </div>
+  );
 }

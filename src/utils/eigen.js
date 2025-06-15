@@ -1,6 +1,5 @@
 import { Matrix, EigenvalueDecomposition, inverse } from "ml-matrix";
 
-
 export function computeEigenDecomposition(matrix) {
   try {
     const A = new Matrix(matrix);
@@ -14,7 +13,7 @@ export function computeEigenDecomposition(matrix) {
       values,
       P: P.to2DArray(),
       D: D.to2DArray(),
-      reconstructedL: reconstructedL.to2DArray(), 
+      reconstructedL: reconstructedL.to2DArray(),
     };
   } catch (err) {
     console.error("Eigen decomposition failed:", err);

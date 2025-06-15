@@ -1,18 +1,30 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { buildLaplacian } from "../utils/laplacian";
 import LaplacianViewer from "./LaplacianViewer";
 import EigenmodeViewer from "./EigenmodeViewer";
 
-export default function GraphBuilder() {
+export default function GraphBuilder({
+  setMasses: setParentMasses,
+  setSprings: setParentSprings,
+}) {
   const [numMasses, setNumMasses] = useState("");
   const [masses, setMasses] = useState([]);
+  const [springs, setSprings] = useState([]);
   const [hasSubmitted, setHasSubmitted] = useState(false);
   const [draggingId, setDraggingId] = useState(null);
   const [canvasWidth, setCanvasWidth] = useState(600);
   const [canvasHeight, setCanvasHeight] = useState(400);
-  const [springs, setSprings] = useState([]);
   const [selectedMasses, setSelectedMasses] = useState([]);
   const [springPlacementMode, setSpringPlacementMode] = useState(false);
+
+  // Sync local state to parent
+  useEffect(() => {
+    setParentMasses(masses);
+  }, [masses]);
+
+  useEffect(() => {
+    setParentSprings(springs);
+  }, [springs]);
 
   function handleSubmit(e) {
     e.preventDefault();
@@ -163,7 +175,8 @@ export default function GraphBuilder() {
                     onChange={(e) => handleMassChange(m.id, e.target.value)}
                     style={{ width: "35px", fontSize: "12px" }}
                     min="0.1"
-                    step="0.1"
+                    max="30"
+                    step="1"
                   />
                 </foreignObject>
               </React.Fragment>
@@ -216,12 +229,6 @@ export default function GraphBuilder() {
               Undo Last Spring
             </button>
           </div>
-          {springs.length > 0 && (
-            <div>
-              <LaplacianViewer matrix={buildLaplacian(masses, springs)} />
-              <EigenmodeViewer matrix={buildLaplacian(masses, springs)} />
-            </div>
-          )}
         </>
       )}
     </div>
