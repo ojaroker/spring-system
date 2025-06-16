@@ -3,117 +3,79 @@ import { BlockMath } from "react-katex";
 import { computeEigenDecomposition } from "../utils/eigen";
 import SimulationCanvas from "./SimulationCanvas";
 
-// takes laplacian and calculates eigenvalues of M^-1 * L
+function formatEigenvalues(values) {
+  const tolerance = 1e-6;
+  const zeroCount = values.filter((v) => Math.abs(v) < tolerance).length;
+  const nonZeroValues = values.filter((v) => Math.abs(v) >= tolerance);
 
-function EigenmodeViewer({ matrix, masses, springs }) {
-  const [eigenData, setEigenData] = useState(null);
-  const [massMatrix, setMassMatrix] = useState(null);
-  const [scaledMatrix, setScaledMatrix] = useState(null);
+  return zeroCount > 0
+    ? `0^{(${zeroCount})}, ${nonZeroValues.map((v) => v.toFixed(2)).join(", ")}`
+    : nonZeroValues.map((v) => v.toFixed(2)).join(", ");
+}
 
-  function computeEigenvalues() {
-    try {
-      const n = masses.length;
+function EigenmodeViewer({ matrix, masses, springs, eigenData }) {
+  const [selectedMode, setSelectedMode] = useState(0);
+  const [amplitude, setAmplitude] = useState(1);
 
-      // Build diagonal mass matrix M
-      const M = masses.map((m, i) => {
-        const row = Array(n).fill(0);
-        row[i] = m.mass;
-        return row;
-      });
-
-      // Build M^{-1}
-      const M_inv = M.map((row, i) => {
-        const newRow = Array(n).fill(0);
-        newRow[i] = 1 / masses[i].mass;
-        return newRow;
-      });
-
-      // Compute M^{-1}L
-      const M_inv_L = M_inv.map((row, i) =>
-        row.map((_, j) =>
-          row.reduce((sum, val, k) => sum + val * matrix[k][j], 0)
-        )
-      );
-
-      const result = computeEigenDecomposition(M_inv_L);
-
-      setMassMatrix(M);
-      setScaledMatrix(M_inv_L);
-      setEigenData(result);
-    } catch (err) {
-      console.error(err);
-      alert("Eigenvalue computation failed.");
-    }
-  }
+  if (!eigenData) return null;
 
   return (
     <div style={{ marginTop: "2rem" }}>
-      <h3>Eigenvalues and Normal Modes (Mass-Scaled)</h3>
-      <button onClick={computeEigenvalues}>Compute Eigenvalues</button>
+      <h3>Eigenmodes Analysis</h3>
 
-      {eigenData && (
-        <>
-          {/* Mass Matrix M */}
-          <div style={{ marginTop: "1rem" }}>
-            <BlockMath math={"\\text{Mass Matrix } M:"} />
+      <div style={{ marginBottom: "1rem" }}>
+        <BlockMath
+          math={`\\text{Eigenvalues: } [${formatEigenvalues(eigenData.values)}]`}
+        />
+      </div>
+
+      <div style={{ marginBottom: "1rem" }}>
+        <label>
+          Select Mode:
+          <select
+            value={selectedMode}
+            onChange={(e) => setSelectedMode(parseInt(e.target.value))}
+            style={{ marginLeft: "0.5rem" }}
+          >
+            {eigenData.physicalModes.map((mode, idx) => (
+              <option key={mode.index} value={mode.index}>
+                Mode {idx} (f = {mode.frequency.toFixed(2)} Hz)
+              </option>
+            ))}
+          </select>
+        </label>
+      </div>
+
+      {eigenData.vectors && eigenData.vectors.length > 0 && (
+        <div>
+          <BlockMath math={`\\text{Selected Mode Shape (${selectedMode}):}`} />
+          <div style={{ overflowX: "auto" }}>
             <BlockMath
               math={`\\begin{bmatrix}
-                ${massMatrix
-                  .map((row) => row.map((v) => v.toFixed(2)).join(" & "))
+                ${eigenData.vectors[selectedMode]
+                  .map((v) => v.toFixed(4))
                   .join(" \\\\ ")}
               \\end{bmatrix}`}
             />
           </div>
-
-          {/* Scaled Matrix M^{-1}L */}
-          <div style={{ marginTop: "1rem" }}>
-            <BlockMath math={"\\text{Mass-scaled Matrix } M^{-1}L:"} />
-            <BlockMath
-              math={`\\begin{bmatrix}
-                ${scaledMatrix
-                  .map((row) => row.map((v) => v.toFixed(2)).join(" & "))
-                  .join(" \\\\ ")}
-              \\end{bmatrix}`}
-            />
-          </div>
-
-          {/* Eigenvalues */}
-          <div style={{ marginTop: "1rem" }}>
-            <BlockMath
-              math={`\\text{Eigenvalues of }M^{-1}L\\text{: } \\left[ ${eigenData.values
-                .map((v) => v.toFixed(2))
-                .join(", ")} \\right]`}
-            />
-
-            <BlockMath math={"\\text{Matrix } P \\text{ (columns = eigenvectors):}"} />
-            <BlockMath
-              math={`\\begin{bmatrix}
-                ${eigenData.P
-                  .map((row) => row.map((v) => v.toFixed(2)).join(" & "))
-                  .join(" \\\\ ")}
-              \\end{bmatrix}`}
-            />
-
-            <BlockMath math={"\\text{Diagonal matrix } D:"} />
-            <BlockMath
-              math={`\\begin{bmatrix}
-                ${eigenData.D
-                  .map((row) => row.map((v) => v.toFixed(2)).join(" & "))
-                  .join(" \\\\ ")}
-              \\end{bmatrix}`}
-            />
-          </div>
-
-          
-
-          {/* Show Simulation */}
-          <SimulationCanvas
-            masses={masses}
-            springs={springs}
-            eigenData={eigenData}
-          />
-        </>
+        </div>
       )}
+
+      <div style={{ marginTop: "1rem" }}>
+        <label>
+          Amplitude:
+          <input
+            type="range"
+            min="0"
+            max="2"
+            step="0.1"
+            value={amplitude}
+            onChange={(e) => setAmplitude(parseFloat(e.target.value))}
+            style={{ marginLeft: "0.5rem" }}
+          />
+          {amplitude.toFixed(1)}
+        </label>
+      </div>
     </div>
   );
 }
