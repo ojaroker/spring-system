@@ -208,6 +208,12 @@ export default function GraphBuilder({
           </div>
 
           <div>
+            <p style={{color: "#333", fontStyle: "italic" }}>
+                Move masses by clicking and dragging them when not in spring placement mode
+            </p>
+            <p style={{ marginBottom: "0.5rem", color: "#333", fontStyle: "italic" }}>
+                Connect two masses with a spring by clicking them consecutively when in spring placement mode.
+            </p>
             <button
               onClick={() => setSpringPlacementMode(!springPlacementMode)}
             >
