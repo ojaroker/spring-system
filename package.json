@@ -16,15 +16,11 @@
     "d3": "^7.9.0",
     "gh-pages": "^6.3.0",
     "katex": "^0.16.22",
-    "mathjs": "^14.5.2",
     "ml-matrix": "^6.12.1",
     "numeric": "^1.2.6",
-    "physicsjs": "^0.7.0",
-    "plotly.js": "^3.0.1",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
-    "react-katex": "^3.1.0",
-    "react-plotly.js": "^2.6.0"
+    "react-katex": "^3.1.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.25.0",
