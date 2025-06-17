@@ -4,7 +4,7 @@ import LaplacianViewer from "./components/LaplacianViewer";
 import EigenmodeViewer from "./components/EigenmodeViewer";
 import MassTable from "./components/MassTable";
 import SimulationCanvas from "./components/SimulationCanvas";
-import { buildLaplacian } from "./utils/laplacian";
+import { buildMassStiffness } from "./utils/massLaplacian";
 import { computeEigenDecomposition } from "./utils/eigen";
 
 function App() {
@@ -17,8 +17,8 @@ function App() {
   // Build Laplacian matrix when masses or springs change
   useEffect(() => {
     if (masses.length > 0 && springs.length > 0) {
-      const L = buildLaplacian(masses, springs);
-      setLaplacian(L);
+      const MS = buildMassStiffness(masses, springs);
+      setLaplacian(MS);
     } else {
       setLaplacian(null);
       setEigenData(null);

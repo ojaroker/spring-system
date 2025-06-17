@@ -1,7 +1,4 @@
 import React, { useState, useEffect } from "react";
-import { buildLaplacian } from "../utils/laplacian";
-import LaplacianViewer from "./LaplacianViewer";
-import EigenmodeViewer from "./EigenmodeViewer";
 
 export default function GraphBuilder({
   setMasses: setParentMasses,

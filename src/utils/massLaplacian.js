@@ -1,4 +1,5 @@
-export function buildLaplacian(masses, springs) {
+import * as math from "mathjs";
+export function buildMassStiffness(masses, springs) {
   const n = masses.length;
   // Create 2n × 2n matrix for 2D system (x1,y1,x2,y2,...)
   const L = Array(2 * n)
@@ -66,8 +67,22 @@ export function buildLaplacian(masses, springs) {
       L[i][j] = Math.abs(L[i][j]) < 1e-10 ? 0 : L[i][j];
     }
   }
+  const M = buildMassMatrix(masses);
+  const massStiffness = math.multiply(math.inv(M), L);
+  return massStiffness;
+}
 
-  return L;
+function buildMassMatrix(masses) {
+  const n = masses.length;
+  const M = Array(2 * n)
+    .fill(0)
+    .map(() => Array(2 * n).fill(0));
+
+  for (let i = 0; i < n; i++) {
+    M[2 * i][2 * i] = masses[i].mass; // x component
+    M[2 * i + 1][2 * i + 1] = masses[i].mass; // y component
+  }
+  return M;
 }
 
 export function matrixToLatex(matrix) {

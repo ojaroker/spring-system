@@ -60,7 +60,7 @@ export default function MassTable({ masses, eigenData }) {
                 <th style={thStyle}>Frequency (Hz)</th>
                 <th style={thStyle}>X Component</th>
                 <th style={thStyle}>Y Component</th>
-                <th style={thStyle}>Phase</th>
+                <th style={thStyle}>Amplitude & Phase</th>
               </tr>
             </thead>
             <tbody>
